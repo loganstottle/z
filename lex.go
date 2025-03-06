@@ -136,6 +136,7 @@ func (l *Lexer) tokenize() {
 	//   abstract l.source[l.i] and l.i++ as peek() and consume()
 	//   multi-character symbols (i.e. <=, &&, +=, ++, etc)
 	//   comments
+	//   clean up
 
 	for l.i = 0; l.i < len(l.source); l.i++ {
 		if unicode.IsLetter(rune(l.source[l.i])) || l.source[l.i] == '_' {
