@@ -1,0 +1,12 @@
+const pi: number = 3.1415;
+
+type circle { 
+    r: number; 
+};
+
+message := "hello, world!";
+print(message.type()); ! string
+
+for 1..10 {
+    break;
+}
