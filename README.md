@@ -1,7 +1,7 @@
 ## languages are interesting
 
 ### lexer
-
+---
 input:
 ```
 const pi: number = 3.1415;
@@ -33,6 +33,6 @@ output:
 ```
 
 ### TODO:
-
+---
 - parser
 - compiler vs interpreter??
