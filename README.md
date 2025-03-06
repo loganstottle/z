@@ -1,6 +1,6 @@
 ## languages are interesting
 
-### lexer
+### tokenizer
 ---
 input:
 ```
