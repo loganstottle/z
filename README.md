@@ -35,5 +35,6 @@ output:
 ### TODO:
 ---
 - finish parser
+  - proper parser errors
 - semantic analysis
 - compiler
