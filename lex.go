@@ -164,7 +164,7 @@ func (l *Lexer) tokenize_ident_or_keyword() {
 func (l *Lexer) tokenize_number_literal() { 
 	number_literal_buf := ""
 
-	for l.inbounds() && unicode.IsDigit(l.peek()) || l.peek() == '.' {
+	for l.inbounds() && (unicode.IsDigit(l.peek()) || l.peek() == '.') {
 		number_literal_buf += string(l.consume())
 	}
 
