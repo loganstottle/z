@@ -35,6 +35,7 @@ output:
 ### TODO:
 ---
 - finish parser
-  - proper parser errors
+  - statements (variable declaration & initialization, blocks, conditionals, functions, loops, etc)
+  - proper errors
 - semantic analysis
 - compiler
