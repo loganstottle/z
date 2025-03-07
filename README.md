@@ -34,5 +34,6 @@ output:
 
 ### TODO:
 ---
-- parser
-- compiler vs interpreter??
+- finish parser
+- semantic analysis
+- compiler
