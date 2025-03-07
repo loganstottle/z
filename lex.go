@@ -130,68 +130,103 @@ func lexer_new(source string) Lexer {
 	return Lexer{source, 0, make([]Token, 0)}
 }
 
+func (l *Lexer) inbounds() bool {
+	return l.i < len(l.source)
+}
+
+func (l *Lexer) peek() rune {
+	return rune(l.source[l.i])
+}
+
+func (l *Lexer) consume() rune {
+	r := l.peek()
+	l.i++
+
+	return r
+}
+
+func (l *Lexer) tokenize_ident_or_keyword() {
+	ident_buf := ""
+
+	for l.inbounds() && (unicode.IsLetter(l.peek()) || unicode.IsDigit(l.peek()) || l.peek() == '_') {
+		ident_buf += string(l.consume())
+	}
+
+	tok := Token{token_str_to_kind(ident_buf), ""}
+
+	if tok.kind == IDENTIFIER {
+		tok.value = ident_buf
+	}
+
+	l.tokens = append(l.tokens, tok)
+}
+
+func (l *Lexer) tokenize_number_literal() { 
+	number_literal_buf := ""
+
+	for l.inbounds() && unicode.IsDigit(l.peek()) || l.peek() == '.' {
+		number_literal_buf += string(l.consume())
+	}
+
+	l.tokens = append(l.tokens, Token{LITERAL_NUMBER, number_literal_buf})
+}
+
+func (l *Lexer) tokenize_string_literal() {
+	string_literal_buf := ""
+
+	l.consume()
+
+	for l.inbounds() && l.peek() != '"' {
+		string_literal_buf += string(l.consume())
+	}
+
+	l.consume()
+
+	l.tokens = append(l.tokens, Token{LITERAL_STRING, string_literal_buf})
+}
+
+func (l *Lexer) tokenize_symbol() {
+	kind := token_str_to_kind(string(l.consume()))
+
+	if kind == IDENTIFIER {
+		kind = SYMBOL_INVALID
+	}
+
+	l.tokens = append(l.tokens, Token{kind, ""})
+}
+
+func (l *Lexer) handle_whitespace() {
+	l.consume()
+	
+	// if l.source[l.i] == '\n' {
+	//   fmt.Printf("new line encountered\n")
+	// }
+}
+
 func (l *Lexer) tokenize() {
 	// todo:
 	//   fix number literals (e.g. "1..10")
-	//   abstract l.source[l.i] and l.i++ as peek() and consume()
 	//   multi-character symbols (i.e. <=, &&, +=, ++, etc)
 	//   comments
 	//   clean up
+	
+	for l.inbounds() {
+		ch := l.peek()
 
-	for l.i = 0; l.i < len(l.source); l.i++ {
-		if unicode.IsLetter(rune(l.source[l.i])) || l.source[l.i] == '_' {
-			ident_buf := ""
+		is_letter := unicode.IsLetter(ch)
+		is_digit := unicode.IsDigit(ch)
+		is_space := unicode.IsSpace(ch)
 
-			for l.i < len(l.source) && (unicode.IsLetter(rune(l.source[l.i])) || unicode.IsDigit(rune(l.source[l.i])) || l.source[l.i] == '_') {
-				ident_buf += string(l.source[l.i])
-				l.i++
-			}
-
-			l.i--
-
-			tok := Token{token_str_to_kind(ident_buf), ""}
-
-			if tok.kind == IDENTIFIER {
-				tok.value = ident_buf
-			}
-
-			l.tokens = append(l.tokens, tok)
-		} else if unicode.IsNumber(rune(l.source[l.i])) {
-			number_literal_buf := ""
-
-			for l.i < len(l.source) && (unicode.IsDigit(rune(l.source[l.i]))) || l.source[l.i] == '.' {
-				number_literal_buf += string(l.source[l.i])
-				l.i++
-			}
-
-			l.i--
-
-			l.tokens = append(l.tokens, Token{LITERAL_NUMBER, number_literal_buf})
-		} else if l.source[l.i] == '"' {
-			string_literal_buf := ""
-
-			l.i++
-
-			for l.i < len(l.source) && l.source[l.i] != '"' {
-				string_literal_buf += string(l.source[l.i])
-				l.i++
-			}
-
-			l.tokens = append(l.tokens, Token{LITERAL_STRING, string_literal_buf})
-		} else if !unicode.IsSpace(rune(l.source[l.i])) && !unicode.IsLetter(rune(l.source[l.i])) && !unicode.IsDigit(rune(l.source[l.i])) {
-			kind := token_str_to_kind(string(l.source[l.i]))
-
-			if kind == IDENTIFIER {
-				kind = SYMBOL_INVALID
-			}
-
-			l.tokens = append(l.tokens, Token{kind, ""})
-		} else {
-			// white space
-
-			// if l.source[l.i] == '\n' {
-			//   fmt.Printf("new line encountered\n")
-			// }
+		if is_letter || ch == '_' { 
+			l.tokenize_ident_or_keyword()
+		} else if is_digit {
+			l.tokenize_number_literal()
+		} else if ch == '"' { 
+			l.tokenize_string_literal()
+		} else if !is_space && !is_letter && !is_digit { 
+			l.tokenize_symbol()
+		} else if is_space { 
+			l.handle_whitespace() 
 		}
 	}
 
