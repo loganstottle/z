@@ -33,7 +33,7 @@ Output:
 ```
 
 ### Parser
-<h6>(Only expressions so far...)</h6>
+<h6>(only expressions so far...)</h6>
 
 ---
 Input:
