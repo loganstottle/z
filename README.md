@@ -32,6 +32,24 @@ output:
 [end of file]
 ```
 
+### parser
+---
+input:
+```
+(1 + 2) * 3
+```
+
+output:
+```
+Parse Tree
+  -- Root
+  ---- Multiply
+  ------ Expression
+  -------- Add
+  ---------- Number Literal (1)
+  ---------- Number Literal (2)
+  ------ Number Literal (3)
+```
 ### TODO:
 ---
 - finish parser
