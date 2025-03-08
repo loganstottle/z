@@ -6,8 +6,10 @@ import (
 )
 
 func main() {
+	test_tokenizer()
+
 	if len(os.Args) != 2 {
-		fmt.Printf("Usage: 00 <source.0>")
+		fmt.Printf("Usage: 00 <source.0>\n")
 		os.Exit(1)
 	}
 
@@ -18,11 +20,23 @@ func main() {
 	}
 
 	source := string(contents)
-	fmt.Printf("Tokenizing: \n\n`%s`\n\n", source)
 
 	l := lexer_new(source)
 	l.tokenize()
+
+	fmt.Printf("\nTokens (%d)\n", len(l.tokens))
+
 	l.debug()
 
-	fmt.Printf("\nNumber of tokens: %d\n", len(l.tokens))
+	p := parser_new(l.tokens)
+	result, err := p.parse()
+
+	if err != nil {
+		fmt.Println("error:", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("\nParse Tree \n")
+
+	debug_tree(result, 1)
 }
