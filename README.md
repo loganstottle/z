@@ -36,24 +36,23 @@ output:
 ---
 input:
 ```
-(7 + 6) / (1 - 2 * 3)
+(-7 + x) / -(1 - a * b)
 ```
 
 output:
 ```
-Parse Tree
-  -- Root
-  ---- Divide
-  ------ Expression
-  -------- Add
-  ---------- Number Literal (7)
-  ---------- Number Literal (6)
-  ------ Expression
-  -------- Subtract
-  ---------- Number Literal (1)
-  ---------- Multiply
-  ------------ Number Literal (2)
-  ------------ Number Literal (3)
+-- Root
+---- Divide
+------ Add
+-------- Negate
+---------- Number Literal (7)
+-------- Identifier (x)
+------ Negate
+-------- Subtract
+---------- Number Literal (1)
+---------- Multiply
+------------ Identifier (a)
+------------ Identifier (b)
 ```
 ### TODO:
 ---
