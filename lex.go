@@ -38,6 +38,8 @@ const (
 	SYMBOL_EQUALS
 	SYMBOL_COLON
 	SYMBOL_SEMI_COLON
+	SYMBOL_STAR
+	SYMBOL_SLASH
 	SYMBOL_INVALID
 
 	EOF
@@ -74,6 +76,8 @@ func token_str_to_kind(symbol string) TokenKind {
 		"=":      SYMBOL_EQUALS,
 		":":      SYMBOL_COLON,
 		";":      SYMBOL_SEMI_COLON,
+		"*":      SYMBOL_STAR,
+		"/":      SYMBOL_SLASH,
 	}
 
 	kind := token_symbols[symbol]
@@ -102,6 +106,8 @@ func token_kind_to_str(kind TokenKind) string {
 		SYMBOL_CLOSE_PAREN:   "closing parenthesis symbol",
 		SYMBOL_PLUS:          "plus symbol",
 		SYMBOL_MINUS:         "minus symbol",
+		SYMBOL_STAR:          "star symbol",
+		SYMBOL_SLASH:         "slash symbol",
 		SYMBOL_LESS_THAN:     "less than symbol",
 		SYMBOL_GREATER_THAN:  "greater than symbol",
 		SYMBOL_OPEN_BRACE:    "opening brace symbol",
@@ -161,7 +167,7 @@ func (l *Lexer) tokenize_ident_or_keyword() {
 	l.tokens = append(l.tokens, tok)
 }
 
-func (l *Lexer) tokenize_number_literal() { 
+func (l *Lexer) tokenize_number_literal() {
 	number_literal_buf := ""
 
 	for l.inbounds() && (unicode.IsDigit(l.peek()) || l.peek() == '.') {
@@ -197,7 +203,7 @@ func (l *Lexer) tokenize_symbol() {
 
 func (l *Lexer) handle_whitespace() {
 	l.consume()
-	
+
 	// if l.source[l.i] == '\n' {
 	//   fmt.Printf("new line encountered\n")
 	// }
@@ -208,8 +214,9 @@ func (l *Lexer) tokenize() {
 	//   fix number literals (e.g. "1..10")
 	//   multi-character symbols (i.e. <=, &&, +=, ++, etc)
 	//   comments
-	//   clean up
-	
+	//   better errors
+	//   token_new (?)
+
 	for l.inbounds() {
 		ch := l.peek()
 
@@ -217,16 +224,16 @@ func (l *Lexer) tokenize() {
 		is_digit := unicode.IsDigit(ch)
 		is_space := unicode.IsSpace(ch)
 
-		if is_letter || ch == '_' { 
+		if is_letter || ch == '_' {
 			l.tokenize_ident_or_keyword()
 		} else if is_digit {
 			l.tokenize_number_literal()
-		} else if ch == '"' { 
+		} else if ch == '"' {
 			l.tokenize_string_literal()
-		} else if !is_space && !is_letter && !is_digit { 
+		} else if !is_space && !is_letter && !is_digit {
 			l.tokenize_symbol()
-		} else if is_space { 
-			l.handle_whitespace() 
+		} else if is_space {
+			l.handle_whitespace()
 		}
 	}
 
@@ -239,9 +246,9 @@ func (l *Lexer) debug() {
 		val := token.value
 
 		if val != "" {
-			fmt.Printf("[%s ( %s )]\n", kind, val)
+			fmt.Printf("  [%s ( %s )]\n", kind, val)
 		} else {
-			fmt.Printf("[%s]\n", kind)
+			fmt.Printf("  [%s]\n", kind)
 		}
 	}
 }
