@@ -1,8 +1,8 @@
-## languages are interesting
+## Languages are interesting
 
-### tokenizer
+### Tokenizer
 ---
-input:
+Input:
 ```
 const pi: number = 3.1415;
 
@@ -10,7 +10,7 @@ message := "hello, world!";
 print(message);
 ```
 
-output:
+Output:
 ```
 [const keyword]
 [identifier ( pi )]
@@ -32,16 +32,16 @@ output:
 [end of file]
 ```
 
-### parser
-<h6>(only expressions so far...)</h6>
+### Parser
+<h6>(Only expressions so far...)</h6>
 
 ---
-input:
+Input:
 ```
 (-7 + x) / -(1 - a * b)
 ```
 
-output:
+Output:
 ```
 -- Root
 ---- Divide
@@ -58,8 +58,8 @@ output:
 ```
 ### TODO:
 ---
-- finish parser
-  - statements (variable declaration & initialization, blocks, conditionals, functions, loops, etc)
-  - proper errors
-- semantic analysis
-- compiler
+- Finish parser
+  - Statements (variable declaration & initialization, blocks, conditionals, functions, loops, etc)
+  - Proper errors
+- Semantic analysis
+- Compiler
