@@ -10,22 +10,23 @@ import (
 type NodeKind int
 
 const (
-	LITERAL_NUMBER_FACTOR NodeKind = iota
-	IDENTIFIER_FACTOR
-	EXPRESSION_FACTOR
-	NEGATION_FACTOR
+	ROOT NodeKind = iota
 
 	FACTOR_LITERAL_NUMBER
 	FACTOR_IDENTIFIER
 	FACTOR_EXPRESSION
 	FACTOR_NEGATE
+	FACTOR_FUNCTION_CALL
 
 	EXPRESSION_ADD
 	EXPRESSION_SUBTRACT
 	EXPRESSION_MULTIPLY
 	EXPRESSION_DIVIDE
 
-	ROOT
+	STATEMENT_LET_DECLARATION
+	STATEMENT_CONST_DECLARATION
+	STATEMENT_LET_ASSIGN
+
 	END
 )
 
@@ -38,14 +39,15 @@ type Node struct {
 type Parser struct {
 	tokens []Token
 	i      int
+	root   Node
 }
 
 func parser_new(tokens []Token) Parser {
-	return Parser{tokens, 0}
+	return Parser{tokens, 0, Node{}}
 }
 
 func (p *Parser) inbounds() bool {
-	return p.i < len(p.tokens)
+	return p.i < len(p.tokens) && p.peek().kind != EOF
 }
 
 func (p *Parser) peek() Token {
@@ -58,13 +60,16 @@ func (p *Parser) consume() Token {
 	return tok
 }
 
-func (p *Parser) expect(kind TokenKind) {
+func (p *Parser) expect(kind TokenKind) Token {
 	if p.peek().kind == kind {
-		p.consume()
+		return p.consume()
 	} else {
-		fmt.Printf("Expected %s\n", token_kind_to_str(kind))
+		fmt.Printf("\nError: Expected %s\n", token_kind_to_str(kind))
 		//fmt.Printf("%s:%d:%d Syntax Error: Expected %s\n", token_kind_to_str(kind), filename, p.line, p.col)
+		fmt.Println("\nParse tree")
+		debug_tree(p.root, 1)
 		os.Exit(1)
+		return Token{}
 	}
 }
 
@@ -80,7 +85,37 @@ func (p *Parser) parse_factor() (Node, error) {
 	if tok.kind == LITERAL_NUMBER {
 		return Node{FACTOR_LITERAL_NUMBER, tok.value, make([]Node, 0)}, nil
 	} else if tok.kind == IDENTIFIER {
-		return Node{FACTOR_IDENTIFIER, tok.value, make([]Node, 0)}, nil
+		if p.peek().kind != SYMBOL_OPEN_PAREN {
+			return Node{FACTOR_IDENTIFIER, tok.value, make([]Node, 0)}, nil
+		}
+
+		p.consume()
+
+		args := []Node{}
+
+		if p.peek().kind == SYMBOL_CLOSE_PAREN {
+			p.consume()
+
+			return Node{FACTOR_FUNCTION_CALL, tok.value, args}, nil
+		}
+
+		for {
+			arg, err := p.parse_expr()
+			if err != nil {
+				return Node{}, err
+			}
+
+			args = append(args, arg)
+
+			if p.peek().kind == SYMBOL_CLOSE_PAREN {
+				p.consume()
+				break
+			} else if p.peek().kind == SYMBOL_COMMA {
+				p.consume()
+			}
+		}
+
+		return Node{FACTOR_FUNCTION_CALL, tok.value, args}, nil
 	} else if tok.kind == SYMBOL_OPEN_PAREN {
 		E, err := p.parse_expr()
 
@@ -101,8 +136,6 @@ func (p *Parser) parse_factor() (Node, error) {
 		}
 
 		return Node{FACTOR_NEGATE, "", []Node{F}}, nil
-	} else if tok.kind == EOF {
-		return Node{END, "", []Node{}}, nil
 	} else {
 		fmt.Println("parsing failed!")
 		return Node{}, errors.New("unknown factor")
@@ -181,21 +214,134 @@ func (p *Parser) parse_expr() (Node, error) {
 	return result, nil
 }
 
-func (p *Parser) parse() (Node, error) {
-	result := Node{ROOT, "", []Node{}}
+func (p *Parser) parse_declaration() (Node, error) {
+	tok := p.peek()
 
-	for p.inbounds() {
-		E, err := p.parse_expr()
-		if err != nil {
-			return result, err
-		}
+	if tok.kind == KEYWORD_LET {
+		p.expect(KEYWORD_LET)
+		name := p.expect(IDENTIFIER)
+		p.expect(SYMBOL_COLON)
 
-		if E.kind != END {
-			result.children = append(result.children, E)
+		kind := p.consume()
+
+		if kind.kind == TYPE_NUMBER {
+			if p.peek().kind == SYMBOL_SEMI_COLON {
+				// let a: number;
+				p.consume()
+				return Node{STATEMENT_LET_DECLARATION, "", []Node{{FACTOR_IDENTIFIER, name.value, []Node{}}, Node{FACTOR_LITERAL_NUMBER, "0", []Node{}}}}, nil
+			}
+
+			p.expect(SYMBOL_EQUALS)
+			E, err := p.parse_expr()
+			if err != nil {
+				fmt.Printf("invalid expression following =\n")
+				fmt.Printf("p.parse_expr ERROR: %s\n", err.Error())
+				os.Exit(1)
+			}
+
+			p.expect(SYMBOL_SEMI_COLON)
+
+			return Node{STATEMENT_LET_DECLARATION, "", []Node{{FACTOR_IDENTIFIER, name.value, []Node{}}, E}}, nil
+		} else {
+			fmt.Printf("unknown variable type: %s\n", token_kind_to_str(kind.kind))
+			os.Exit(1)
 		}
+	} else if tok.kind == KEYWORD_CONST {
+		p.expect(KEYWORD_CONST)
+		name := p.expect(IDENTIFIER)
+		p.expect(SYMBOL_COLON)
+
+		kind := p.consume()
+
+		if kind.kind == TYPE_NUMBER {
+			if p.peek().kind == SYMBOL_SEMI_COLON {
+				fmt.Println("constants must be initialized")
+				os.Exit(1)
+			}
+
+			p.expect(SYMBOL_EQUALS)
+			E, err := p.parse_expr()
+			if err != nil {
+				fmt.Printf("invalid expression following =\n")
+				fmt.Printf("p.parse_expr ERROR: %s\n", err.Error())
+				os.Exit(1)
+			}
+
+			p.expect(SYMBOL_SEMI_COLON)
+
+			return Node{STATEMENT_CONST_DECLARATION, "", []Node{{FACTOR_IDENTIFIER, name.value, []Node{}}, E}}, nil
+		} else {
+			fmt.Printf("unknown constant type: %s\n", token_kind_to_str(kind.kind))
+			os.Exit(1)
+		}
+	} else {
+		fmt.Println("unknown statement")
+		os.Exit(1)
 	}
 
-	return result, nil
+	return Node{}, nil
+}
+
+func (p *Parser) parse_variable_set() (Node, error) {
+	name := p.expect(IDENTIFIER)
+	p.expect(SYMBOL_EQUALS)
+	E, err := p.parse_expr()
+	if err != nil {
+		return Node{}, err
+	}
+
+	p.expect(SYMBOL_SEMI_COLON)
+	return Node{STATEMENT_LET_ASSIGN, name.value, []Node{E}}, nil
+}
+
+func (p *Parser) parse_statement() (Node, error) {
+	tok := p.peek()
+
+	if tok.kind == KEYWORD_LET || tok.kind == KEYWORD_CONST {
+		declaration, err := p.parse_declaration()
+		if err != nil {
+			return Node{}, err
+		}
+
+		return declaration, nil
+	} else if tok.kind == IDENTIFIER {
+		set, err := p.parse_variable_set()
+		if err != nil {
+			return Node{}, err
+		}
+
+		return set, nil
+	} else {
+		msg := fmt.Sprintf("failed to parse statement [@%s]\n", token_kind_to_str(tok.kind))
+
+		if tok.value != "" {
+			msg = fmt.Sprintf("failed to parse statement @ %s (%s)\n", token_kind_to_str(tok.kind), tok.value)
+		}
+
+		return Node{}, errors.New(msg)
+	}
+}
+
+func (p *Parser) parse() error {
+	// todo:
+	//   strings
+	//   bools
+	//   more and more statements
+	//     (if/while/for/fn etc)
+
+	p.root = Node{ROOT, "", []Node{}}
+
+	for p.inbounds() {
+		S, err := p.parse_statement()
+
+		if err != nil {
+			return err
+		}
+
+		p.root.children = append(p.root.children, S)
+	}
+
+	return nil
 }
 
 func debug_tree(node Node, depth int) {
@@ -208,6 +354,8 @@ func debug_tree(node Node, depth int) {
 		output += " Identifier"
 	case FACTOR_NEGATE:
 		output += " Negate"
+	case FACTOR_FUNCTION_CALL:
+		output += " Function Call"
 	case EXPRESSION_ADD:
 		output += " Add"
 	case EXPRESSION_SUBTRACT:
@@ -216,6 +364,12 @@ func debug_tree(node Node, depth int) {
 		output += " Multiply"
 	case EXPRESSION_DIVIDE:
 		output += " Divide"
+	case STATEMENT_LET_DECLARATION:
+		output += " Variable Declaration"
+	case STATEMENT_CONST_DECLARATION:
+		output += " Constant Declaration"
+	case STATEMENT_LET_ASSIGN:
+		output += " Variable Assign"
 	case ROOT:
 		output += " Root"
 	}
