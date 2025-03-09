@@ -59,7 +59,8 @@ Output:
 ### TODO:
 ---
 - Finish parser
-  - Statements (variable declaration & initialization, blocks, conditionals, functions, loops, etc)
+  - REFACTOR soon!
+  - More Statements (blocks, conditionals, function declaration, loops, etc)
   - Proper errors
 - Semantic analysis
 - Compiler
