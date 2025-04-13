@@ -1,11 +1,18 @@
 let a: num = 5 + 3;
 const b: str = "hello world!";
 
-fn add(x: num, y: num, z: str) -> str {
+fn add(x: num, y: num) -> num {
     return x + y;
 }
 
-while add(1) {
+while add(1, 2) {
   print("hello");
 }
 
+if add(2, 3) {
+  add(4, 5);
+} else if add(6, 7) {
+  add(8, 9);
+} else {
+  add(10, 11);
+}

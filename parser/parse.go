@@ -105,6 +105,8 @@ func debug_node(node Node, depth int) {
 		output += " Function Declaration"
 	case STATEMENT_WHILE_LOOP:
 		output += " While Loop"
+	case STATEMENT_IF:
+		output += " If Statement"
 	case RETURN_TYPE_NUMBER:
 		output += " Number Return Type"
 	case RETURN_TYPE_STRING:

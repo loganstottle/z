@@ -199,6 +199,34 @@ func (p *Parser) parse_while_loop() (Node, error) {
 	return Node{STATEMENT_WHILE_LOOP, "", []Node{E, B}}, nil
 }
 
+func (p *Parser) parse_conditional() (Node, error) {
+	p.expect(lexer.KEYWORD_IF)
+	E, err := p.parse_expr()
+	if err != nil {
+		fmt.Println("Error: invalid expression following \"if\"")
+		return Node{}, err
+	}
+
+	B, err := p.parse_block()
+	if err != nil {
+		fmt.Println("Error: expected block following for loop expression")
+		return Node{}, err
+	}
+
+	if p.inbounds() && p.peek().Kind == lexer.KEYWORD_ELSE {
+		p.consume()
+		S, err := p.parse_statement()
+		if err != nil {
+			fmt.Println("Error: invalid statement following \"else\"")
+			return Node{}, err
+		}
+
+		return Node{STATEMENT_IF, "", []Node{E, B, S}}, nil
+	}
+
+	return Node{STATEMENT_IF, "", []Node{E, B}}, nil
+}
+
 func (p *Parser) parse_statement() (Node, error) {
 	tok := p.peek()
 
@@ -244,6 +272,13 @@ func (p *Parser) parse_statement() (Node, error) {
 		}
 
 		return W, nil
+	} else if tok.Kind == lexer.KEYWORD_IF {
+		C, err := p.parse_conditional()
+		if err != nil {
+			return Node{}, err
+		}
+
+		return C, nil
 	} else {
 		E, err := p.parse_expr()
 		if err != nil {

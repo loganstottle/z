@@ -11,6 +11,8 @@ const (
 	KEYWORD_FOR
 	KEYWORD_WHILE
 	KEYWORD_RETURN
+	KEYWORD_IF
+	KEYWORD_ELSE
 
 	TYPE_NUMBER
 	TYPE_STRING
@@ -62,6 +64,8 @@ func Token_str_to_kind(symbol string) TokenKind {
 		"for":    KEYWORD_FOR,
 		"while":  KEYWORD_WHILE,
 		"return": KEYWORD_RETURN,
+		"if":     KEYWORD_IF,
+		"else":   KEYWORD_ELSE,
 		"num":    TYPE_NUMBER,
 		"str":    TYPE_STRING,
 		"bool":   TYPE_BOOL,
@@ -110,6 +114,8 @@ func Token_kind_to_str(kind TokenKind) string {
 		KEYWORD_FN:              "fn",
 		KEYWORD_FOR:             "for",
 		KEYWORD_RETURN:          "return",
+		KEYWORD_IF:              "if",
+		KEYWORD_ELSE:            "else",
 		TYPE_NUMBER:             "number type",
 		TYPE_STRING:             "string type",
 		TYPE_BOOL:               "bool type",
