@@ -12,7 +12,7 @@ fn greet(name: str) -> str {
 print(greet("World"));
 ```
 
-## Tokenizer Output:
+### Tokenizer Output:
 ```
 { const }
 { identifier "x" }
@@ -52,7 +52,7 @@ print(greet("World"));
 { EOF }
 ```
 
-## Parser Output:
+### Parser Output:
 ```
 -- Root
 ---- Constant Declaration (x)
