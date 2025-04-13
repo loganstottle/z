@@ -1,0 +1,33 @@
+!! single line comment
+
+!!!
+  multi
+  line
+  comment
+!!!
+
+let msg: str = "happy birthday";
+msg += "!";
+
+type Rect { 
+  w, h: num;
+  fn Area() num;
+};
+
+fn Rect.Area(self: Rect) -> num: self.w * self.h;
+
+for n in 1..10 {
+  print("number: ", n);
+  
+  if n == 9: break;
+}
+
+for n in arr {
+  
+}
+
+let arr1: []num = { 1, 2, 3 };    !!fixed size, mutable elements
+const arr2: []num = { 4, 5, 6 };  !!fixed size, immutable elements
+
+const v: Vec(num) -> { 1, 2, 3 };
+v.push(1);

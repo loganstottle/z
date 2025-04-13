@@ -3,40 +3,38 @@ package main
 import (
 	"fmt"
 	"os"
+	"z/lexer"
+	"z/parser"
 )
 
 func main() {
-	test_tokenizer()
-
-	if len(os.Args) != 2 {
+	if len(os.Args) < 2 {
 		fmt.Printf("Usage: 00 <source.0>\n")
 		os.Exit(1)
 	}
 
 	contents, err := os.ReadFile(os.Args[1])
 	if err != nil {
-		fmt.Printf("error reading file.\n")
+		fmt.Printf("Error: %s\n", err)
 		os.Exit(1)
 	}
 
 	source := string(contents)
 
-	l := lexer_new(source)
-	l.tokenize()
+	l := lexer.New(source)
+	l.Tokenize()
 
-	fmt.Printf("\nTokens (%d)\n", len(l.tokens))
+	fmt.Printf("\nTokens (%d)\n", len(l.Tokens))
+	l.Debug()
 
-	l.debug()
-
-	p := parser_new(l.tokens)
-	result, err := p.parse()
+	p := parser.New(l.Tokens)
+	err = p.Parse()
 
 	if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("\nParsing error:", err)
 		os.Exit(1)
 	}
 
 	fmt.Printf("\nParse Tree \n")
-
-	debug_tree(result, 1)
+	p.Debug()
 }

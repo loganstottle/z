@@ -1,0 +1,11 @@
+let a: num = 5 + 3;
+const b: str = "hello world!";
+
+fn add(x: num, y: num, z: str) -> str {
+    return x + y;
+}
+
+while add(1) {
+  print("hello");
+}
+

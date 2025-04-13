@@ -1,0 +1,10 @@
+* fix number literal lexing
+* fix &&, !=, etc
+* comments
+* conditionals
+* for loops
+* one liner functions, for loops, and while loops
+* parse_type
+* more data types (arrays, vectors, etc)
+* custom types/structs (with member functions)
+* fix errors (some syntax errors will crash the program)

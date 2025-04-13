@@ -2,22 +2,23 @@ package main
 
 import (
 	"reflect"
+	"z/lexer"
 )
 
-func tokenize_assert(source string, expected []Token) {
-	l := lexer_new(source)
-	l.tokenize()
+func tokenize_assert(source string, expected []lexer.Token) {
+	l := lexer.New(source)
+	l.Tokenize()
 
-	if !reflect.DeepEqual(expected, l.tokens) {
-		panic("tokenization test failed")
+	if !reflect.DeepEqual(expected, l.Tokens) {
+		panic("lexer.Tokenization test failed")
 	}
 }
 
 func test_tokenizer() {
-	tokenize_assert("x := 1", []Token{{IDENTIFIER, "x"}, {SYMBOL_COLON, ""}, {SYMBOL_EQUALS, ""}, {LITERAL_NUMBER, "1"}, {EOF, ""}})
-	tokenize_assert("const e=2.718", []Token{{KEYWORD_CONST, ""}, {IDENTIFIER, "e"}, {SYMBOL_EQUALS, ""}, {LITERAL_NUMBER, "2.718"}, {EOF, ""}})
-	tokenize_assert("let a: string = \"happy birthday!\" ;", []Token{{KEYWORD_LET, ""}, {IDENTIFIER, "a"}, {SYMBOL_COLON, ""}, {TYPE_STRING, ""}, {SYMBOL_EQUALS, ""}, {LITERAL_STRING, "happy birthday!"}, {SYMBOL_SEMI_COLON, ""}, {EOF, ""}})
-	tokenize_assert("const z:number= 125;", []Token{{KEYWORD_CONST, ""}, {IDENTIFIER, "z"}, {SYMBOL_COLON, ""}, {TYPE_NUMBER, ""}, {SYMBOL_EQUALS, ""}, {LITERAL_NUMBER, "125"}, {SYMBOL_SEMI_COLON, ""}, {EOF, ""}})
+	tokenize_assert("x := 1", []lexer.Token{{Kind: lexer.IDENTIFIER, Value: "x"}, {Kind: lexer.SYMBOL_COLON, Value: ""}, {Kind: lexer.SYMBOL_EQUALS, Value: ""}, {Kind: lexer.LITERAL_NUMBER, Value: "1"}, {Kind: lexer.EOF, Value: ""}})
+	tokenize_assert("const e=2.718", []lexer.Token{{Kind: lexer.KEYWORD_CONST, Value: ""}, {Kind: lexer.IDENTIFIER, Value: "e"}, {Kind: lexer.SYMBOL_EQUALS, Value: ""}, {Kind: lexer.LITERAL_NUMBER, Value: "2.718"}, {Kind: lexer.EOF, Value: ""}})
+	tokenize_assert("let a: str = \"happy birthday!\" ;", []lexer.Token{{Kind: lexer.KEYWORD_LET, Value: ""}, {Kind: lexer.IDENTIFIER, Value: "a"}, {Kind: lexer.SYMBOL_COLON, Value: ""}, {Kind: lexer.TYPE_STRING, Value: ""}, {Kind: lexer.SYMBOL_EQUALS, Value: ""}, {Kind: lexer.LITERAL_STRING, Value: "happy birthday!"}, {Kind: lexer.SYMBOL_SEMI_COLON, Value: ""}, {Kind: lexer.EOF, Value: ""}})
+	tokenize_assert("const z:num= 125;", []lexer.Token{{Kind: lexer.KEYWORD_CONST, Value: ""}, {Kind: lexer.IDENTIFIER, Value: "z"}, {Kind: lexer.SYMBOL_COLON, Value: ""}, {Kind: lexer.TYPE_NUMBER, Value: ""}, {Kind: lexer.SYMBOL_EQUALS, Value: ""}, {Kind: lexer.LITERAL_NUMBER, Value: "125"}, {Kind: lexer.SYMBOL_SEMI_COLON, Value: ""}, {Kind: lexer.EOF, Value: ""}})
 }
 
 // todo: test parser

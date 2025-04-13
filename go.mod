@@ -1,3 +1,3 @@
-module 00
+module z
 
 go 1.23.3
