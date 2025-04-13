@@ -1,66 +1,85 @@
 ## Languages are interesting
 
-### Tokenizer
 ---
 Input:
 ```
-const pi: number = 3.1415;
+const x: num = 3 + 5;
 
-message := "hello, world!";
-print(message);
+fn greet(name: str) -> str {
+  return "Hello, " + name + "!";
+}
+
+print(greet("World"));
 ```
 
-Output:
+## Tokenizer Output:
 ```
-[const keyword]
-[identifier ( pi )]
-[colon symbol]
-[number type]
-[equals symbol]
-[number literal ( 3.1415 )]
-[semi colon symbol]
-[identifier ( message )]
-[colon symbol]
-[equals symbol]
-[string literal ( hello, world! )]
-[semi colon symbol]
-[identifier ( print )]
-[opening parenthesis symbol]
-[identifier ( message )]
-[closing parenthesis symbol]
-[semi colon symbol]
-[end of file]
+{ const }
+{ identifier "x" }
+{ : }
+{ number type }
+{ = }
+{ number literal "3" }
+{ + }
+{ number literal "5" }
+{ ; }
+{ fn }
+{ identifier "greet" }
+{ ( }
+{ identifier "name" }
+{ : }
+{ string type }
+{ ) }
+{ -> }
+{ string type }
+{ { }
+{ return }
+{ string literal "Hello, " }
+{ + }
+{ identifier "name" }
+{ + }
+{ string literal "!" }
+{ ; }
+{ } }
+{ identifier "print" }
+{ ( }
+{ identifier "greet" }
+{ ( }
+{ string literal "World" }
+{ ) }
+{ ) }
+{ ; }
+{ EOF }
 ```
 
-### Parser
-<h6>(only expressions so far...)</h6>
-
----
-Input:
-```
-(-7 + x) / -(1 - a * b)
-```
-
-Output:
+## Parser Output:
 ```
 -- Root
----- Divide
+---- Constant Declaration (x)
+------ Number Type
 ------ Add
--------- Negate
----------- Number Literal (7)
--------- Identifier (x)
------- Negate
--------- Subtract
----------- Number Literal (1)
----------- Multiply
------------- Identifier (a)
------------- Identifier (b)
+-------- Number Literal (3)
+-------- Number Literal (5)
+---- Function Declaration (greet)
+------ String Return Type
+------ String Parameter (name)
+------ Block
+-------- Return
+---------- Add
+------------ Add
+-------------- String Literal (Hello, )
+-------------- Identifier (name)
+------------ String Literal (!)
+---- Function Call (print)
+------ Function Call (greet)
+-------- String Literal (World)
 ```
 ### TODO:
 ---
+- Fix lexer bugs + more features
 - Finish parser
-  - REFACTOR soon!
-  - More Statements (blocks, conditionals, function declaration, loops, etc)
+  - REFACTOR needed!
+  - More Statements (conditionals, loops, structs, etc)
   - Proper errors
 - Semantic analysis
 - Compiler
