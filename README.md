@@ -26,7 +26,7 @@ if 0 {
 
 #### Tokenizer Output:
 ```
- { let }
+{ let }
 { identifier "a" }
 { : }
 { number type }
