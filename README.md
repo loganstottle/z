@@ -1,7 +1,7 @@
 ## Languages are interesting
 
 ---
-Input:
+Input (source.0):
 ```
 let a: num = 1 + (5 + 3) / 2;
 const b: str = "hello world!";
