@@ -181,4 +181,4 @@ if 0 {
   - More Statements (conditionals, loops, structs, etc)
   - Proper errors
 - Semantic analysis
-- Compiler
+- Assembly code generation
